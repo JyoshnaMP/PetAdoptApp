@@ -8,7 +8,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // 🔹 Register
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, profileImage } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -21,14 +21,22 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      profileImage: profileImage || "",
     });
 
-    res.json({ message: "User registered successfully" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+    res.json({
+      message: "User registered successfully",
+      token,
+      user,
+    });
 
   } catch (error) {
     res.status(500).json(error);
   }
 };
+
 
 // 🔹 Email Login
 exports.loginUser = async (req, res) => {
@@ -82,5 +90,13 @@ exports.googleLogin = async (req, res) => {
 
   } catch (error) {
     res.status(500).json(error);
+  }
+};
+
+exports.getMe = async (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
   }
 };
