@@ -14,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/pets", require("./routes/petRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Pet Adopt Backend Running");
